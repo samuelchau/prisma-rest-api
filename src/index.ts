@@ -45,7 +45,60 @@ app.get(`/song/:id`, async (req, res) => {
     })
 })
 
-// #5.3 Fetches all artists.
+// #5.3 Creates a new artist.
+app.post(`/artist`, async (req, res) => {
+    const result = await prisma.artist.create({
+        data: { ...req.body },
+    })
+    res.json({
+        success: true,
+        payload: result,
+    })
+})
+
+// #5.4. Creates (or compose) a new song (unreleased)
+app.post(`/song`, async (req, res) => {
+    const { title, content, singerEmail } = req.body
+    const result = await prisma.song.create({
+        data: {
+            title,
+            content,
+            released: false,
+            singer: { connect: { email: singerEmail } },
+        },
+    })
+    res.json({
+        success: true,
+        payload: result,
+    })
+})
+
+// #5.5 Sets the released field of a song to true.
+app.put('/song/release/:id', async (req, res) => {
+    const { id } = req.params
+    const song = await prisma.song.update({
+        where: { id: Number(id) },
+        data: { released: true },
+    })
+    res.json({
+        success: true,
+        payload: song,
+    })
+})
+
+// #5.6 Deletes a song by its ID.
+app.delete(`/song/:id`, async (req, res) => {
+    const { id } = req.params
+    const song = await prisma.song.delete({
+        where: { id: Number(id) },
+    })
+    res.json({
+        success: true,
+        payload: song,
+    })
+})
+
+// #5.7 Fetches all artists.
 app.get('/artists', async (req, res) => {
   const artists = await prisma.artist.findMany()
   res.json({
